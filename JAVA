@@ -1,0 +1,631 @@
+            
+            
+            ### JAVA ###
+
+
+        
+# INSTALL: all
+
+  #Download java (if didn't do this earlier)
+http://www.oracle.com/technetwork/java/javase/downloads/index.html
+export JAVA_HOME=...
+export PATH=$JAVA_HOME/bin:$PATH
+java -version
+
+
+
+
+# COMPILE: via Tomcat
+
+  #In addition to standard Java libraries, we will need servlet API classes and interfaces 
+  on our classpath to compile HelloWorldServlet successfully. All required servlet API 
+  classes and interfaces are already included with Tomcat (in CATALINA_HOME/lib 
+  directory), so we can just add it to the classpath for the Java compiler. To
+  compile the HelloWorldServlet class run the following command:
+
+javac HelloWorldServlet.java -cp $CATALINA_HOME/lib/servlet-api.jar
+
+  #The result of the compilation will be HelloWorldServlet.class file, located in the 
+  same directory.
+
+
+
+
+# CONNECT: to Ingres (#1)
+
+  #http://community.actian.com/wiki/Connecting_Ingres_to_Java_via_JDBC
+
+  #We are going to assume that Ingres and Java are already installed.
+  
+  #Set env
+vi ~/javaIngres.env  
+export JAVA_HOME=/u01/install/zip/java/jdk1.8.0_60
+export II_SYSTEM=/u01/ing
+export PATH=:$PATH
+export PATH=$JAVA_HOME/bin/:$CATALINA_HOME/bin:/usr/bin:/usr/sbin:$ANT_HOME/bin:$II_SYSTEM/ingres/bin:$II_SYSTEM/ingres/utility:$PATH
+export CLASSPATH=$JAVA_HOME/jre/lib/rt.jar:$JAVA_HOME/bin:$II_SYSTEM/ingres/lib:$II_SYSTEM/ingres/lib/iijdbc.jar:$CLASSPATH
+
+  #cd to dir which is already in CLASSPATH, or add that dir to CLASSPATH (in other case class won't be founded)
+
+  #Create java-file
+
+vi Airport.java
+
+import java.io.*;
+import java.sql.*;
+
+public class CountryList {
+
+    public static void main(String arg[]) 
+
+	{
+		String  url="";
+		int i;
+
+		try {
+				Class.forName ("com.ingres.jdbc.IngresDriver");
+				url="jdbc:ingres://172.22.109.250:BS7/demodb;";
+				Connection cnx = DriverManager.getConnection(url,"ingres","Djljgfl!1");
+				
+					Statement stmt = cnx.createStatement();
+			 			ResultSet rs = stmt.executeQuery ("select * from ingres.airport");
+						ResultSetMetaData rsmd = rs.getMetaData ();
+						int ncols = rsmd.getColumnCount ();
+						for (i=1; i<=ncols; i++) 
+						        {
+									if (i > 1)
+									//System.out.print(" ");
+									//Column name
+									System.out.print(rsmd.getColumnName(i)+"\t\t");
+									
+								}
+						
+						while(rs.next())
+							    
+								{
+									
+									//Column values
+									System.out.println(rs.getString(1) + "\t" + rs.getString(3));
+																		
+								} 
+						
+						//System.out.println("");
+					stmt.close();
+				cnx.close();
+			}
+		
+		catch (Exception ex) 
+			{
+				ex.printStackTrace ();
+			}
+	}
+
+}
+
+  #To compile this java file and create the executable class I just need to run:
+
+javac Airport.java
+
+  #To fire this class
+
+java Airport
+
+
+
+
+# CONN: to Ingres (#2) (via jsp)
+
+
+  #Set env
+export JAVA_HOME=/u01/install/zip/java/jdk1.8.0_60
+export II_SYSTEM=/u01/ing
+export CATALINA_HOME=/u01/install/unzip/tomcat/apache-tomcat-7.0.64
+export PATH=:$PATH
+export PATH=$JAVA_HOME/bin/:$CATALINA_HOME/bin:/usr/bin:/usr/sbin:$ANT_HOME/bin:$II_SYSTEM/ingres/bin:$II_SYSTEM/ingres/utility:$PATH
+export CLASSPATH=$JAVA_HOME/jre/lib/rt.jar:$JAVA_HOME/bin:$CATALINA_HOME/webapps/apress/jsps:$II_SYSTEM/ingres/lib:$II_SYSTEM/ingres/lib/iijdbc.jar:$CLASSPATH
+
+  
+  #Context should contain info
+  
+    cursorMode=readonly
+	#This option generally improves response times by utilizing more block fetching of data and reducing database locking. While this option is now the default for the Ingres 2006 driver and does not need to be specified with the current release, this value was not the default in prior versions, including some initial releases of Ingres 2006.  Since this option is beneficial for new development, it doesn't hurt to always specify the option so there's no doubt about whether it's on or not.
+
+	autocommitMode=multi
+	#Applications that expect to keep multiple cursors (selects) open when AUTOCOMMIT is on will encounter errors such as “No MST in progress, trying to open additional cursor”.  If this error occurs, set this attribute.  When autocommit is on, Ingres only allows one cursor (select) to be open at a time.  Since autocommit is the default for  JDBC, the problem can easily occur.  Some of the other databases do not have this behavior and applications may have been coded with that expectation.  Setting this attribute causes the Ingres JDBC driver to emulate the behavior, and thereby allow multiple cursors to be open concurrently. Please see the Ingres JDBC driver documentation for details.
+
+  #Add that info to context
+
+vi $CATALINA_HOME/conf/context.xml
+
+<!-- My Ingres Example -->
+<Resource name="jdbc/IngresDB"
+              auth="Container" 
+              type="javax.sql.DataSource" 
+              username="ingres"
+              password="Djljgfl!1"
+              url="jdbc:ingres://172.22.110.143:BS7/demodb;cursor=readonly;auto=multi" 
+              driverClassName="com.ingres.jdbc.IngresDriver"
+              maxActive="8"
+              maxIdle="4"
+              maxWait="60000"
+              validationQuery="select 1"/>
+	      factory="org.apache.commons.dbcp.BasicDataSourceFactory"
+   <ResourceLink name="jdbc/IngresDB" global="jdbc/IngresDB" type="javax.sql.DataSource" />
+
+   
+   #Deploy jsp
+
+mkdir -p $CATALINA_HOME/webapps/ingres
+mkdir -p $CATALINA_HOME/webapps/ingres/lib
+mkdir -p $CATALINA_HOME/webapps/ingres/WEB-INF
+mkdir -p $CATALINA_HOME/webapps/ingres/jsp
+
+cp $II_SYSTEM/ingres/lib/iijdbc.jar $CATALINA_HOME/webapps/ingres/lib
+
+
+
+vi $CATALINA_HOME/webapps/ingres/WEB-INF/web.xml
+
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!--
+ Licensed to the Apache Software Foundation (ASF) under one or more
+  contributor license agreements.  See the NOTICE file distributed with
+  this work for additional information regarding copyright ownership.
+  The ASF licenses this file to You under the Apache License, Version 2.0
+  (the "License"); you may not use this file except in compliance with
+  the License.  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+
+<web-app xmlns="http://java.sun.com/xml/ns/javaee"
+   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+   xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
+   version="2.5"> 
+</web-app>
+
+
+
+vi $CATALINA_HOME/webapps/ingres/jsp/h.jsp 
+
+
+<html>
+<head>
+<title>Access to Ingres server</title>
+</head>
+<body>
+<%@ page language="java" contentType="text/html" import="java.sql.*" import="javax.naming.*" import="javax.sql.*" import="com.ingres.jdbc.*"%>
+<h1>International airports list</h1>
+
+<%
+    Connection conn = null;
+    Statement stmt = null;
+    ResultSet rs = null;
+    javax.sql.DataSource ds = null;
+
+    try
+    {
+           Context initCtx = new InitialContext();
+           if( initCtx != null )
+           {                 
+              ds = (javax.sql.DataSource) initCtx.lookup("java:/comp/env/jdbc/IngresDB");
+           }
+    }
+    catch(Exception e)
+    {
+        System.out.println("DataSource Context not found");
+        System.out.println(e.toString());
+        throw new UnavailableException(this, "DataSource Context not found");
+    }
+
+    try
+    {
+          if( ds != null )
+          {
+              conn = ds.getConnection();
+
+              System.out.println("Got the connection successfully\n");
+
+              if( conn != null )
+              {
+                  stmt = conn.createStatement();
+                  rs = stmt.executeQuery("SELECT ap_iatacode,ap_name FROM airport");
+              }
+          }
+    }
+    catch(SQLException e)
+    {
+        System.out.println("An error occurs.");
+        System.out.println(e.toString());
+        throw new UnavailableException(this, "Cannot connect with the specified database.");
+    }
+
+%>
+
+<p>Return result:</p>
+
+<table border=1 cellpadding=2 cellspacing=0 width=200>
+<tr>
+        <th><b>IATA_CODE</b></th>
+        <th><b>AIRPORT_NAME</b></th>
+</tr>
+<% int countrows = 0; %>
+<% while (rs.next()) { %>
+<tr height="50">
+    <td height="16"><%= rs.getString(1) %></td>
+        <td height="16"><%= rs.getString(2) %></td>
+    <% countrows++; %>
+</tr>
+
+<% }
+     if( rs != null )
+         rs.close();
+     if( stmt != null )
+         stmt.close();
+     if( conn != null )
+        conn.close();
+     System.out.println("Successfully closed the Database connection.");
+%>
+
+</table>
+<p><%=countrows%> row(s) found.</p>
+
+</body>
+</html>
+
+
+  #Check
+
+http://172.22.110.143:8080/ingres/jsp/h.jsp  
+
+
+
+
+# JAR FILES: overall info
+
+  #https://docs.oracle.com/javase/tutorial/deployment/jar/
+  #The Java™ Archive (JAR) file format enables you to bundle multiple files into a single 
+  archive file. Typically a JAR file contains the class files and auxiliary resources 
+  associated with applets and applications.
+
+  #https://docs.oracle.com/javase/tutorial/deployment/jar/basicsindex.html
+  #JAR files are packaged with the ZIP file format, so you can use them for tasks such as 
+  lossless data compression, archiving, decompression, and archive unpacking. These tasks 
+  are among the most common uses of JAR files, and you can realize many JAR file benefits 
+  using only these basic features.
+
+  #To perform basic tasks with JAR files, you use the Java Archive Tool provided as part 
+  of the Java Development Kit (JDK). Because the Java Archive tool is invoked by using the 
+  jar command, this tutorial refers to it as 'the Jar tool'.
+
+
+
+
+# JAR FILES: create
+
+  #https://docs.oracle.com/javase/tutorial/deployment/jar/build.html
+  #To create a JAR file    
+  
+jar cf jar-file input-file(s)
+
+    - The c option indicates that you want to create a JAR file.
+    - The f option indicates that you want the output to go to a file rather than to 
+    stdout.
+    - jar-file is the name that you want the resulting JAR file to have. You can use any 
+    filename for a JAR file. By convention, JAR filenames are given a .jar extension, 
+    though this is not required.
+    - The input-file(s) argument is a space-separated list of one or more files that you 
+    want to include in your JAR file. The input-file(s) argument can contain the wildcard 
+    * symbol. If any of the "input-files" are directories, the contents of those directori
+    es are added to the JAR archive recursively.
+
+
+
+
+# JAR FILES: add new files to existing jar/war/ear
+
+    # jar uvf existing.ear new.jar
+
+jar uvf GTInterfaceApp.ear ActivationService.jar
+
+
+
+
+# JAR FILES: view the content
+
+  #https://docs.oracle.com/javase/tutorial/deployment/jar/view.html
+  #To view the contents of a JAR (WAR) file
+  
+jar tf jar-file
+
+    - The t option indicates that you want to view the table of contents of the JAR file.
+    - The f option indicates that the JAR file whose contents are to be viewed is 
+    specified on the command line.
+    - The jar-file argument is the path and name of the JAR file whose contents you want 
+    to view.
+
+  #The t and f options can appear in either order, but there must not be any space between 
+  them.
+  #This command will display the JAR file's table of contents to stdout.
+  #You can optionally add the verbose option, v, to produce additional information about 
+  file sizes and last-modified dates in the output.
+
+
+
+
+# JAR FILES: extract the content
+
+  #https://docs.oracle.com/javase/tutorial/deployment/jar/unpack.html
+  #To extract the contents of a JAR file
+  
+jar xf jar-file [archived-file(s)]
+
+    - The x option indicates that you want to extract files from the JAR archive.
+    - The f options indicates that the JAR file from which files are to be extracted is 
+    specified on the command line, rather than through stdin.
+    - The jar-file argument is the filename (or path and filename) of the JAR file from 
+    which to extract files.
+    - archived-file(s) is an optional argument consisting of a space-separated list of the 
+    files to be extracted from the archive. If this argument is not present, the Jar tool 
+    will extract all the files in the archive.
+
+  #As usual, the order in which the x and f options appear in the command doesn't matter, 
+  but there must not be a space between them.
+  #When extracting files, the Jar tool makes copies of the desired files and writes them 
+  to the current directory, reproducing the directory structure that the files have in the 
+  archive. The original JAR file remains unchanged.
+  #Caution: When it extracts files, the Jar tool will overwrite any existing files having 
+  the same pathname as the extracted files.
+
+
+
+
+# JAR FILES: other commands
+  
+  #To run an application packaged as a JAR file (requires the Main-class manifest header)	
+  
+java -jar app.jar
+
+
+  #To invoke an applet packaged as a JAR file	
+  
+<applet code=AppletClassName.class
+        archive="JarFileName.jar"
+        width=width height=height>
+</applet>
+
+
+
+
+# JAVADOC: java documentation comments
+  
+  #http://www.tutorialspoint.com/java/java_documentation.htm
+  #The Java language supports three types of comments:
+
+    Comment                 Description
+    /* text */	            The compiler ignores everything from /* to */.
+    // text	                The compiler ignores everything from // to the end of the line
+    /** documentation */	This is a documentation comment and in general its called doc 
+                            comment. The JDK javadoc tool uses doc comments when preparing 
+                            automatically generated documentation.
+    
+  #This tutorial is all about explaining Javadoc. We will see how we can make use of 
+  Javadoc for generating useful documentation for our Java code.
+  
+  
+  #What is Javadoc?
+  
+  #Javadoc is a tool which comes with JDK and it is used for generating Java code 
+  documentation in HTML format from Java source code which has required documentation in a 
+  predefined format.
+
+  #Following is a simple example where red part of the code represents Java comments:
+/**
+* The HelloWorld program implements an application that
+* simply displays "Hello World!" to the standard output.
+*
+* @author  Zara Ali
+* @version 1.0
+* @since   2014-03-31 
+*/
+public class HelloWorld {
+    public static void main(String[] args) {
+        /* Prints Hello, World! on standard output.
+        System.out.println("Hello World!");
+    }
+}
+
+  #You can include required HTML tags inside the description part, For example, below 
+  example makes use of <h1>....</h1> for heading and <p> has been used for creating 
+  paragraph break:
+/**
+* <h1>Hello, World!</h1>
+* The HelloWorld program implements an application that
+* simply displays "Hello World!" to the standard output.
+* <p>
+* Giving proper comments in your program makes it more
+* user friendly and it is assumed as a high quality code.
+* 
+*
+* @author  Zara Ali
+* @version 1.0
+* @since   2014-03-31 
+*/
+public class HelloWorld {
+    public static void main(String[] args) {
+        /* Prints Hello, World! on standard output.
+        System.out.println("Hello World!");
+    }
+}
+
+
+  #The javadoc Tags:
+
+  #The javadoc tool recognizes the following tags:
+
+    Tag         Description	                    Syntax
+    @author	    Adds the author of a class.	    @author name-text
+    {@code}	    Displays text in code font      {@code text}
+                without interpreting the text 
+                as HTML markup or nested 
+                javadoc tags.	
+    ...
+
+
+  #Example:
+
+  #Following program uses few of the important tags available for documentation comments. 
+  You can make use of other tags based on your requirements.
+
+  #The documentation about the AddNum class will be produced in HTML file AddNum.html but 
+  same time a master file with a name index.html will also be created.
+import java.io.*;
+
+/**
+* <h1>Add Two Numbers!</h1>
+* The AddNum program implements an application that
+* simply adds two given integer numbers and Prints
+* the output on the screen.
+* <p>
+* <b>Note:</b> Giving proper comments in your program makes it more
+* user friendly and it is assumed as a high quality code.
+*
+* @author  Zara Ali
+* @version 1.0
+* @since   2014-03-31
+*/
+public class AddNum {
+   /**
+   * This method is used to add two integers. This is
+   * a the simplest form of a class method, just to
+   * show the usage of various javadoc Tags.
+   * @param numA This is the first paramter to addNum method
+   * @param numB  This is the second parameter to addNum method
+   * @return int This returns sum of numA and numB.
+   */
+   public int addNum(int numA, int numB) {
+      return numA + numB;
+   }
+
+   /**
+   * This is the main method which makes use of addNum method.
+   * @param args Unused.
+   * @return Nothing.
+   * @exception IOException On input error.
+   * @see IOException
+   */
+   public static void main(String args[]) throws IOException
+   {
+
+      AddNum obj = new AddNum();
+      int sum = obj.addNum(10, 20);
+
+      System.out.println("Sum of 10 and 20 is :" + sum);
+   }
+}
+
+
+  #Now, process above AddNum.java file using javadoc utility as follows:
+$ javadoc AddNum.java
+Loading source file AddNum.java...
+Constructing Javadoc information...
+Standard Doclet version 1.7.0_51
+Building tree for all the packages and classes...
+Generating /AddNum.html...
+AddNum.java:36: warning - @return tag cannot be used in method with void return type.
+Generating /package-frame.html...
+Generating /package-summary.html...
+Generating /package-tree.html...
+Generating /constant-values.html...
+Building index for all the packages and classes...
+Generating /overview-tree.html...
+Generating /index-all.html...
+Generating /deprecated-list.html...
+Building index for all classes...
+Generating /allclasses-frame.html...
+Generating /allclasses-noframe.html...
+Generating /index.html...
+Generating /help-doc.html...
+1 warning
+$
+
+  #Example of output:
+http://www.tutorialspoint.com/java/index.html
+
+  # If you are using JDK 1.7 then javadoc does not generate a great stylesheet.css, so I 
+  suggest to download and use standard stylesheet from http://docs.oracle.com/javase/7
+  /docs/api/stylesheet.css
+
+
+
+
+# WAR: overall info
+  
+  #The WAR (Web ARchive) file is a single file that contains all web application 
+  resources, and can be deployed directly to Tomcat. The WAR file is actually a zip
+  -compatible archived file that, when unpacked, contains the same directory structure 
+  as the exploded directory described in the previous section.
+    
+  #A WAR file is the standard method for packaging Java web applications, and you can 
+  create one using Java’s archiving tool, jar. You can create a WAR file from the 
+  exploded directory by changing into it and running the following command from the 
+  exploded directory (/apress in our example):
+    
+    #The period (.) at the end of the jar cvf apress.war. command references the active 
+    directory; make sure to include it when running the command, otherwise the jar 
+    packaging won’t work:
+      
+jar cvf apress.war .
+  OR
+jar cvf apress.war *
+
+  #Extract in current dir
+jar xvf GTInterfaceApp.ear
+
+  #Pack in *.ear file
+
+
+
+
+# WHICH IS RUNNING: 64 bit or 32 bit?
+
+java -d64 -version
+    
+    #If 64 bit
+    Java HotSpot(TM) 64-Bit Server VM (build 24.91-b03, mixed mode)
+
+    #If 32 bit
+    This Java instance does not support a 64-bit JVM. Please install the desired version.
+        OR
+    Running a 64-bit JVM is not supported on this platform
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
