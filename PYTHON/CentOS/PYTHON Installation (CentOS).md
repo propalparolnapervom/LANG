@@ -4,9 +4,15 @@
 
 Install necessary packages for CentOS
 ```
-the python2 and python2-devel packages.
+sudo yum -y install python2 python2-devel
 ```
 
+Check installed version
+```
+python -V
+
+      Python 2.7.5
+```
 
 
 
