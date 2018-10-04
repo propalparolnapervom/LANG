@@ -17,7 +17,23 @@ Also, what if you can’t install packages into the global site-packages directo
 
 In all these cases, `virtualenv` can help you. It creates an environment that has its own installation directories, that doesn’t share libraries with other virtualenv environments (and optionally doesn’t access the globally installed libraries either).
 
+__________
 
+A **Virtual Environment**, put simply, is an isolated working copy of Python which
+allows you to work on a specific project without worry of affecting other projects
+
+It enables multiple side-by-side installations of Python, one for each project.
+
+It doesn’t actually install separate copies of Python, but it does provide a
+clever way to keep different project environments isolated. 
+
+
+
+## VERIFY IF INSTALLED
+
+```
+virtualenv --version
+```
 
 ## INSTALLATION
 
@@ -55,6 +71,29 @@ python3 -m venv /Users/sbur/overall/test/env1
 ```
 
 
+## WHAT HAPPEND
+
+Any packages you install now using pip or easy_install get installed into  `/Users/sbur/overall/test/env1/lib/python2.7/site-packages`.
+
+_____________
+
+Packages installed here will not affect the global Python installation. 
+
+Virtualenv does not create every file needed to get a whole new python environment
+
+It uses links to global environment files instead in order to save disk space end
+speed up your virtualenv. 
+
+Therefore, there must already have an active python environment installed on your
+system.
+
+
+
+## EXIT
+
+```
+deactivate
+```
 
 
 ## REMOVING ENV
