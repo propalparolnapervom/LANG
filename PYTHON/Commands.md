@@ -35,6 +35,27 @@ def hello(name):
 hello('Serg')
 ```
 
+### With arguments and return
+```
+import random
+
+# Define function w arguments and return
+def insert_name_get_answer(name):
+    if name == 'serg':
+        return 'The best name ever'
+    else:
+        return 'It is good one too'
+    
+# Pickup random name from the list
+randomName=random.choice(['serg', 'marta', 'kiril'])
+
+print('What about ' + randomName + '?')
+
+# Call function w arguments
+returnedAnswer=insert_name_get_answer(randomName)
+
+print(returnedAnswer)
+```
 
 ## Modules
 [Docs](https://docs.python.org/3/py-modindex.html)
@@ -47,6 +68,14 @@ import random
 
 randomNumber = random.randint(1,9)
 print(str(randomNumber))
+```
+
+Random item from the array
+```
+import random
+
+randomName = random.choice(['serg', 'marta', 'kiril'])
+print(randomName)
 ```
 
 ### sys
