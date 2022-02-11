@@ -92,5 +92,52 @@ if name == 'serg':
     sys.exit(3)
 ```
 
+## Exceptions Handling
+
+[Docs: Built-In Exceptions](https://docs.python.org/3/library/exceptions.html#built-in-exceptions)
+
+Some pre-defined built-in exceptions and overall one (for all other cases?):
+```
+def dividing(numToDel):
+    try:
+        return 13 / numToDel
+    except ZeroDivisionError:
+        print('   ERR: You can no delete on this number: ' + str(numToDel))
+    except TypeError:
+        print('   ERR: This should be number: ' + str(numToDel))
+    except:
+        print('   ERR: Undefined reason, but you can not do like this.')
+
+
+print(dividing(1))
+print(dividing(0)) # Division by 0
+print(dividing(13))
+print(dividing('serg')) # Division on wrong type (string)
+print(dividing(1))
+```
+
+Show that try: -> except: transition is implemented just after very first error in the try: block (if any):
+```
+def dividing(numToDel):
+    return 13 / numToDel
+
+try:
+    print(dividing(1))
+    print(dividing(0)) # Division by 0 ERROR
+    print(' LOOK AT ME!!!')
+except:
+    print('  ERR: Something went wrong')
+
+print('\nAs you can see, steps from try: block are ommited after very first error')
+print('This is because try -> except transition is implemented just after first error \n')
+```
+
+
+
+
+
+
+
+
 
 
