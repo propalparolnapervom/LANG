@@ -159,9 +159,48 @@ for catName in cats:
 
 ```
 
+Work simultaneously with both 'list index' and corresponding 'list value'
+```
+# Define list variable
+cats = ['barsik', 'murka', 'persik']
+
+# Work with both 'index number' and corresponding 'list value'
+for i in range(len(cats)):
+    print('The list item number ' + str(i) + ' is: ' + cats[i])
+```
+
+Is item in the list?
+```
+# Define list variable
+hardcodedListOfCats = ['barsik', 'murka', 'persik']
+
+print('Enter any name of the pet')
+suggestedPetName = input()
+
+# Is your name in the list?
+if suggestedPetName in hardcodedListOfCats:
+    print('Yup, you are right.')
+else:
+    print('Nope, there is no such name in the hardcoded list')
+```
 
 
+Set multiple variables from the list
+```
+# Define list with some characteristics
+barsikTheCat = ['grey', 'loud', 'heavy']
 
+# Set variables, which value corresponds 
+# to items from the list
+#
+# NB: The variables number should be the same as list's items number
+barsikColor, barsikVolume, barsikWeight = barsikTheCat
+
+# Verify it
+print('Barsiks color is: ' + barsikColor)
+print('Barsiks volume is: ' + barsikVolume)
+print('Barsiks weight is: ' + barsikWeight)
+```
 
 
 
