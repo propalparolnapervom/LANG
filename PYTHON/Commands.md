@@ -133,6 +133,31 @@ print('This is because try -> except transition is implemented just after first 
 ```
 
 
+## Lists
+
+Input list items from the dialogue:
+```
+# Define list variable
+cats = []
+
+while True:
+    print('Input name of the cat (or leave it empty to finish the list)')
+    name = input()
+
+    # Finish input once item from the input is empty
+    if name == '':
+        break
+
+    # Add new item to the list
+    cats = cats + [name]
+
+print('\nSo you have mentioned following cats:')
+
+for catName in cats:
+    print(catName)
+
+
+```
 
 
 
