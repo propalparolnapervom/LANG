@@ -1,4 +1,17 @@
 
+## Type
+
+Define type of the item
+```
+>>> name = 'serg'
+>>> age = 33
+>>> 
+>>> type((name))
+<class 'str'>
+>>> type((age))
+<class 'int'>
+```
+
 ## Functions: Built-in
 [Docs](https://docs.python.org/3/library/functions.html)
 
