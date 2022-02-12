@@ -1,16 +1,4 @@
 
-## Type
-
-Define type of the item
-```
->>> name = 'serg'
->>> age = 33
->>> 
->>> type((name))
-<class 'str'>
->>> type((age))
-<class 'int'>
-```
 
 ## Functions: Built-in
 [Docs](https://docs.python.org/3/library/functions.html)
@@ -146,7 +134,9 @@ print('This is because try -> except transition is implemented just after first 
 ```
 
 
-## Lists
+## Types: Overall
+
+### Lists
 
 Input list items from the dialogue:
 ```
@@ -214,6 +204,79 @@ print('Barsiks color is: ' + barsikColor)
 print('Barsiks volume is: ' + barsikVolume)
 print('Barsiks weight is: ' + barsikWeight)
 ```
+
+### Strings
+
+> NB: Might be handled like `list`, but immutable
+
+Show first 4 "items" only
+```
+>>> name = 'sergii'
+>>> name[0:4]
+'serg'
+```
+
+
+### Tuples
+
+> NB: Same as `list`, but immutable. 
+> Use `()` instead of `[]`
+
+Show 2nd item in the tuple
+```
+>>> cats = ('barsik', 'koko')
+>>> cats[1]
+'koko'
+```
+
+
+
+## Types: Convertation
+
+### To String
+
+Integer -> String
+```
+str(24)
+'24'
+```
+
+### To Integer
+
+String -> Integer
+```
+>>> int("43")
+43
+```
+
+### To List
+Tuple -> List
+```
+>>> list(('barsik', 'koko'))
+['barsik', 'koko']
+```
+
+String -> List
+```
+>>> list('barsik')
+['b', 'a', 'r', 's', 'i', 'k']
+```
+
+### To Tuple
+
+List -> Tuple
+```
+>>> tuple(['barsik', 'koko'])
+('barsik', 'koko')
+```
+
+String -> Tuple
+```
+>>> tuple ('barsik')
+('b', 'a', 'r', 's', 'i', 'k')
+```
+
+
 
 
 
