@@ -233,6 +233,19 @@ Show 2nd item in the tuple
 
 ## Types: Convertation
 
+### Define current type
+
+```
+>>> type('koko')
+<class 'str'>
+
+>>> type(0.24)
+<class 'float'>
+
+>>> type(24)
+<class 'int'>
+```
+
 ### To String
 
 Integer -> String
