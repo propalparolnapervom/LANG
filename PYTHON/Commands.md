@@ -237,7 +237,7 @@ Show 2nd item in the tuple
 
 Integer -> String
 ```
-str(24)
+>>> str(24)
 '24'
 ```
 
