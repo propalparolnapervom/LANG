@@ -205,6 +205,19 @@ print('Barsiks volume is: ' + barsikVolume)
 print('Barsiks weight is: ' + barsikWeight)
 ```
 
+List of the lists:
+```
+grid = [
+    [10,11,12],
+    [20,21,22],
+    [30,31,32]
+]
+
+print('Should be 10:  ' + str(grid[0][0]))
+print('Should be 21:  ' + str(grid[1][1]))
+print('Should be 32:  ' + str(grid[2][2]))
+```
+
 ### Strings
 
 > NB: Might be handled like `list`, but immutable
