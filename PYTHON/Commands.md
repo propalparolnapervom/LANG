@@ -242,6 +242,18 @@ Show 2nd item in the tuple
 'koko'
 ```
 
+### Dictionaries
+
+```
+# Initialize empty dictionary
+count = {}
+
+# If the `symbol` is not present in the dictionary yet,
+# use `setdefault` method to add it, with value `0`
+count.setdefault('symbol', 0)
+
+print(count)
+```
 
 
 ## Types: Convertation
