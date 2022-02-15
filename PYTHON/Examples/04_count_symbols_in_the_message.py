@@ -2,6 +2,8 @@
 # Count symbols in the message
 ###############################
 
+import pprint
+
 # Set up some message
 message = 'This is a test message.'
 
@@ -20,3 +22,5 @@ for symbol in message:
 
 # Show final dictionary
 print(count)
+# # Uncomment for nice look
+# pprint.pprint(count)
