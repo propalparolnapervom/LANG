@@ -244,6 +244,24 @@ Show 2nd item in the tuple
 
 ### Dictionaries
 
+Work with keys, values and items (key-value pairs) from the dict
+```
+shopping = {'apple': 3, 'banana': 2, 'milk': 'liquid'}
+
+print('\n   Keys from the dictionary:')
+for k in shopping.keys():
+    print(k)
+
+print('\n   Values from the dictionary:')
+for v in shopping.values():
+    print(v)
+
+print('\n   Items (key-value pairs) from the dictionary:')
+for i in shopping.items():
+    print(i)
+```
+
+If requested key is not present yet, add it with default value.
 ```
 import pprint
 
