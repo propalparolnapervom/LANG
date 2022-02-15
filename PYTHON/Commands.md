@@ -245,6 +245,8 @@ Show 2nd item in the tuple
 ### Dictionaries
 
 ```
+import pprint
+
 # Initialize empty dictionary
 count = {}
 
@@ -253,6 +255,9 @@ count = {}
 count.setdefault('symbol', 0)
 
 print(count)
+
+# # Uncomment for nice look
+# pprint.pprint(count)
 ```
 
 
