@@ -259,9 +259,29 @@ for v in shopping.values():
 print('\n   Items (key-value pairs) from the dictionary:')
 for i in shopping.items():
     print(i)
+
+print('\n   Key and value simultaneously from the dictionary:')
+for k, v in shopping.items():
+    print('Key ' + k + ' has ' + str(v) + ' value.')
 ```
 
-If requested key is not present yet, add it with default value.
+#### Method: get()
+If non-existing key requested, return some default value (instead of error)
+```
+shopping = {'apple': 3, 'banana': 2}
+
+print('\n   No error, as key exists:')
+print(shopping['apple'])
+
+# print('\n   Error, as no such key:')
+# print(shopping['milk'])
+
+print('\n   No error for non-existing key, as default value is returned:')
+print(shopping.get('milk', 0))
+```
+
+#### Method: setdefault()
+If key is doesn't exist, add it with some default value
 ```
 import pprint
 
